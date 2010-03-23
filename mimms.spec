@@ -8,6 +8,7 @@ Source0:	http://launchpad.net/mimms/trunk/%{version}/+download/%{name}-%{version
 # Source0-md5:	ec629d8899551b4789ba15c17402c36f
 URL:		https://launchpad.net/mimms
 BuildRequires:	python
+BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 Requires:	libmms
 Requires:	python-modules
