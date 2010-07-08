@@ -1,7 +1,7 @@
 Summary:	mms stream downloader
 Name:		mimms
 Version:	3.2.1
-Release:	1
+Release:	2
 License:	GPL v3
 Group:		Applications
 Source0:	http://launchpad.net/mimms/trunk/%{version}/+download/%{name}-%{version}.tar.bz2
