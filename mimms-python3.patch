@@ -1,0 +1,132 @@
+diff -ur mimms-3.2.1/libmimms/core.py mimms-3.2.1.new/libmimms/core.py
+--- mimms-3.2.1/libmimms/core.py	2008-05-12 02:53:08.000000000 +0200
++++ mimms-3.2.1.new/libmimms/core.py	2026-05-08 20:34:57.103170237 +0200
+@@ -26,7 +26,7 @@
+ 
+ from optparse import OptionParser
+ from time import time
+-from urlparse import urlparse
++from urllib.parse import urlparse
+ 
+ from . import libmms
+ 
+@@ -99,8 +99,8 @@
+   "Using the given options, download the stream to a file."
+ 
+   status = "Connecting ..."
+-  if not options.quiet: print status,
+-  sys.stdout.flush()  
++  if not options.quiet: print(status, end=' ')
++  sys.stdout.flush()
+ 
+   stream = libmms.Stream(options.url, options.bandwidth)
+ 
+@@ -110,15 +110,15 @@
+ 
+   filename = get_filename(options)
+   if options.resume:
+-    f = open(filename, "a")
++    f = open(filename, "ab")
+     stream.seek(f.tell())
+   else:
+-    f = open(filename, "w")
++    f = open(filename, "wb")
+ 
+   clear = " " * len(status)
+   status = "%s => %s" % (options.url, filename)
+-  if not options.quiet: print "\r", clear, "\r", status
+-  sys.stdout.flush()  
++  if not options.quiet: print("\r" + clear + "\r" + status)
++  sys.stdout.flush()
+ 
+   timeout_timer  = Timer()
+   duration_timer = Timer()
+@@ -171,7 +171,7 @@
+         seconds_to_string(remaining)
+         )
+ 
+-      if not options.quiet: print "\r", clear, "\r", status,
++      if not options.quiet: print("\r" + clear + "\r" + status, end=' ')
+       sys.stdout.flush()
+ 
+       if options.time and timeout_timer.elapsed() > (options.time*60):
+@@ -212,7 +212,7 @@
+     "-q", "--quiet",
+     action="store_true", dest="quiet",
+     help="don't print progress messages to stdout")
+-  
++
+   parser.set_defaults(time=0, bandwidth=1e6)
+   (options, args) = parser.parse_args(argv)
+   if len(args) < 1:
+@@ -222,28 +222,28 @@
+     parser.error("only mms urls (i.e. mms://, mmst://, mmsh://) are supported")
+   elif len(args) > 2:
+     parser.error("unknown extra arguments: %s" % ' '.join(args[2:]))
+-  
++
+   options.url = args[0]
+   if len(args) > 1: options.filename = args[1]
+   else: options.filename = None
+-    
++
+   try:
+     download(options)
+   except Timeout:
+     if not options.quiet:
+-      print
+-      print "Download stopped after user-specified timeout."
++      print()
++      print("Download stopped after user-specified timeout.")
+   except NotResumeableError:
+     if not options.quiet:
+-      print
+-    print >> sys.stderr, "Non-seekable streams cannot be resumed."
++      print()
++    print("Non-seekable streams cannot be resumed.", file=sys.stderr)
+   except KeyboardInterrupt:
+     if not options.quiet:
+-      print
+-    print >> sys.stderr, "Download aborted by user."
+-  except libmms.Error, e:
+-    print >> sys.stderr, "libmms error:", e.message
++      print()
++    print("Download aborted by user.", file=sys.stderr)
++  except libmms.Error as e:
++    print("libmms error:", e, file=sys.stderr)
+   else:
+     if not options.quiet:
+-      print
+-      print "Download complete!"
++      print()
++      print("Download complete!")
+diff -ur mimms-3.2.1/libmimms/libmms.py mimms-3.2.1.new/libmimms/libmms.py
+--- mimms-3.2.1/libmimms/libmms.py	2008-05-12 02:53:08.000000000 +0200
++++ mimms-3.2.1.new/libmimms/libmms.py	2026-05-08 20:35:01.419836902 +0200
+@@ -65,7 +65,7 @@
+ 
+   def __init__(self, url, bandwidth):
+     "Connect to the given URL, prefering the given bandwidth."
+-    self.mms = libmms.mmsx_connect(None, None, url, int(bandwidth))
++    self.mms = libmms.mmsx_connect(None, None, url.encode('utf-8'), int(bandwidth))
+     if not self.mms:
+       raise Error("libmms connection error")
+ 
+diff -ur mimms-3.2.1/mimms mimms-3.2.1.new/mimms
+--- mimms-3.2.1/mimms	2008-05-12 02:53:08.000000000 +0200
++++ mimms-3.2.1.new/mimms	2026-05-08 20:34:26.456503571 +0200
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2.5
++#!/usr/bin/python3
+ # -*- coding: utf-8 -*-
+ #
+ # mimms - mms stream downloader
+diff -ur mimms-3.2.1/setup.py mimms-3.2.1.new/setup.py
+--- mimms-3.2.1/setup.py	2008-05-12 02:53:08.000000000 +0200
++++ mimms-3.2.1.new/setup.py	2026-05-08 20:35:24.066503567 +0200
+@@ -1,4 +1,4 @@
+-from distutils.core import setup
++from setuptools import setup
+ setup(
+   name='mimms',
+   version='3.2',
